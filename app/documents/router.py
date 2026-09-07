@@ -1,15 +1,29 @@
-from fastapi import APIRouter, UploadFile, File
-from app.documents.service import upload_document
+from fastapi import APIRouter, UploadFile, File, Depends
+from app.documents.service import save_document
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.db.session import get_db
+from app.documents.schemas import DocumentResponse
+from app.documents.service import get_documents
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 
-@router.post("/upload")
-async def upload_deocument(file: UploadFile = File(...)):
-    
-    file_path = await upload_document(file)
 
-    return{
-        "filename": file.filename,
-        "content_type": file.content_type,
-        "path": str(file_path)
-    }   
+# Upload a document _____________________________________________________________________________
+@router.post("/upload", response_model=DocumentResponse)
+async def upload_document(file: UploadFile = File(...), db: AsyncSession = Depends(get_db)):
+    
+    document = await save_document(file, db)
+
+    return document
+
+
+
+# Get a document ________________________________________________________________________________
+@router.get("/", response_model=list[DocumentResponse])
+async def list_documents(db: AsyncSession = Depends(get_db)):
+
+    documents = await get_documents(db)
+
+    return documents
+
+
