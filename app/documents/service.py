@@ -31,3 +31,13 @@ async def get_documents(db):
     result = await db.execute(select(Document))
 
     return result.scalars().all()
+
+
+# Get a document by id ________________________________________________________________________________
+async def get_document_by_id(document_id: int, db):
+
+    result = await db.execute(select(Document).where(Document.id == document_id))
+
+    return result.scalar_one_or_none()
+
+    

@@ -3,7 +3,7 @@ from app.documents.service import save_document
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.session import get_db
 from app.documents.schemas import DocumentResponse
-from app.documents.service import get_documents
+from app.documents.service import get_documents, get_document_by_id
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 
@@ -18,7 +18,7 @@ async def upload_document(file: UploadFile = File(...), db: AsyncSession = Depen
 
 
 
-# Get a document ________________________________________________________________________________
+# Get all document ________________________________________________________________________________
 @router.get("/", response_model=list[DocumentResponse])
 async def list_documents(db: AsyncSession = Depends(get_db)):
 
@@ -26,4 +26,12 @@ async def list_documents(db: AsyncSession = Depends(get_db)):
 
     return documents
 
+
+# Get a document by id ________________________________________________________________________________
+@router.get("/{document_id}", response_model=DocumentResponse)
+async def list_document(document_id: int, db:AsyncSession = Depends(get_db)):
+
+    document = await get_document_by_id(document_id, db)
+
+    return document
 
